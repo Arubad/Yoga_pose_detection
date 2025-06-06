@@ -1,8 +1,3 @@
-Sure! Based on your request, here’s a general-purpose `README.md` template for a **Yoga Pose Detection App** using machine learning (assuming it's a Python-based project using OpenCV + Mediapipe or a pose estimation model). You can update the details if your code differs, or paste the specific code here so I can tailor it further.
-
----
-
-````markdown
 # 🧘 Yoga Pose Detection App
 
 A real-time yoga pose detection application built using Python, OpenCV, and a pose estimation model (like MediaPipe or a pre-trained deep learning model). The app identifies key yoga poses and provides visual feedback through webcam-based posture recognition.
