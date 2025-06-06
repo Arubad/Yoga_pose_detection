@@ -117,6 +117,4 @@ This app expects:
 
 You can train this using custom datasets captured with BlazePose and labeled accordingly.
 
----
 
-Let me know if you’d like to include **model training instructions**, a **Dockerfile**, or deployment tips.
