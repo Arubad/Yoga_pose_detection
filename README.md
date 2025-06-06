@@ -1,134 +1,122 @@
-# 🧘 Yoga Pose Detection App
+# 🧘‍♂️ Yoga Pose Detection App
 
-A real-time yoga pose detection application built using Python, OpenCV, and a pose estimation model (like MediaPipe or a pre-trained deep learning model). The app identifies key yoga poses and provides visual feedback through webcam-based posture recognition.
+A real-time web-based application that detects and classifies yoga poses from a webcam feed using deep learning and computer vision.
 
----
+## 🔍 Features
 
-## 📸 Features
-
-- 🎯 Real-time video feed with pose detection
-- 🧍 Recognizes common yoga poses (e.g., Tadasana, Warrior, Tree)
-- 📊 Displays landmark joints and angles
-- 🚨 Alerts or feedback on incorrect posture
-- 💻 Lightweight and works on most machines
-
----
+* Real-time yoga pose detection via webcam
+* Person detection using YOLOv8
+* Pose estimation using MediaPipe BlazePose
+* Custom pose classification using a trained Keras model
+* Web interface for live video feed and pose updates
+* Multi-person support with bounding boxes and classification
 
 ## 🛠️ Tech Stack
 
-| Component         | Technology                         |
-|------------------|-------------------------------------|
-| Language          | Python                              |
-| Computer Vision   | OpenCV                              |
-| Pose Estimation   | MediaPipe / OpenPose / Custom model |
-| GUI (Optional)    | Streamlit / Tkinter / PyQt          |
+| Layer               | Technology                            |
+| ------------------- | ------------------------------------- |
+| Frontend            | HTML + MJPEG Streaming (`index.html`) |
+| Backend             | Flask (Python)                        |
+| Pose Estimation     | MediaPipe BlazePose                   |
+| Person Detection    | YOLOv8 (via `ultralytics` library)    |
+| Pose Classification | Keras-trained `.h5` model             |
+| Webcam Access       | OpenCV (`cv2.VideoCapture`)           |
 
----
+## 🖼️ App Architecture
 
-## 🚀 Installation
-
-### Prerequisites
-- Python 3.7+
-- pip
-
-### Clone and Setup
-
-```bash
-git clone https://github.com/your-username/yoga-pose-detector.git
-cd yoga-pose-detector
-pip install -r requirements.txt
-````
-
-### Requirements Example
-
-If `requirements.txt` isn't available, create one with:
-
-```bash
-opencv-python
-mediapipe
-numpy
 ```
-
----
-
-## 🧪 Usage
-
-### Run the App
-
-```bash
-python app.py
+Webcam Feed --> YOLOv8 --> Person Cropping --> BlazePose -->
+Landmark Extraction --> Classification Model -->
+Pose Labeling --> Annotated Video Frame --> Flask Web Interface
 ```
-
-### What You'll See
-
-* Your webcam feed opens.
-* Landmarks on your body joints.
-* Pose classification shown on screen.
-* Feedback if the pose is incorrect (optional).
-
----
 
 ## 📁 Project Structure
 
 ```
 yoga-pose-detector/
-│
-├── app.py                 # Main application
-├── model/                 # Pose classification models
-├── utils/                 # Angle calculation and helpers
-├── requirements.txt       # Required Python packages
-└── README.md              # This file
+├── model/
+│   ├── model.h5         # Trained Keras model
+│   └── labels.npy       # Corresponding pose labels
+├── templates/
+│   └── index.html       # Main UI
+├── app.py               # Main Flask application
+└── README.md
 ```
 
----
+## ⚙️ Setup Instructions
 
-## 📚 How It Works
+### 1. Clone the Repository
 
-1. **Capture webcam frames**
-2. **Detect body landmarks using pose estimation**
-3. **Calculate joint angles (e.g., elbows, knees)**
-4. **Classify poses based on angle thresholds**
-5. **Display results with optional feedback**
-
----
-
-## 📦 Optional Enhancements
-
-* Add more yoga poses
-* Create a feedback system for misaligned poses
-* Use Streamlit for a web-based frontend
-* Deploy to HuggingFace Spaces or Render
-
----
-
-## 🤝 Contributing
-
-PRs and suggestions are welcome!
-Please open an issue to discuss changes before submitting a PR.
-
----
-
-## 📜 License
-
-MIT License. See `LICENSE` file for more details.
-
----
-
-## 🙏 Acknowledgments
-
-* [MediaPipe by Google](https://mediapipe.dev/)
-* [OpenCV](https://opencv.org/)
-* Yoga datasets and pose references from [YogaNet](https://github.com/aryan-ar/YogaNet) and open datasets.
-
+```bash
+git clone https://github.com/yourusername/yoga-pose-detector.git
+cd yoga-pose-detector
 ```
 
+### 2. Install Requirements
+
+```bash
+pip install -r requirements.txt
+```
+
+Create `requirements.txt` like so:
+
+```txt
+flask
+opencv-python
+mediapipe
+tensorflow
+ultralytics
+```
+
+> Note: YOLOv8 is used via the `ultralytics` Python package.
+
+### 3. Add Your Model
+
+Place your trained Keras model and label file inside the `model/` folder:
+
+```
+model/model.h5
+model/labels.npy
+```
+
+### 4. Run the App
+
+```bash
+python app.py
+```
+
+Then visit [http://localhost:5000](http://localhost:5000) in your browser.
+
+## 🚀 Example Usage
+
+* Visit `/` for the live webcam feed.
+* Pose predictions are streamed over the frame.
+* JSON endpoint `/pose_data` shows current detected poses.
+* Use `/start` and `/stop` (POST) to control detection.
+
+## 📦 Deployment
+
+For production deployment, use Docker or run with a WSGI server like Gunicorn.
+
+```bash
+gunicorn app:app
+```
+
+## 📌 Notes
+
+* Uses the lightweight YOLOv8n model.
+* Requires a webcam.
+* Performance may vary depending on hardware (GPU preferred).
+
+## 🧠 Model Training
+
+This app expects:
+
+* Input: 132-dimensional keypoint vectors (33 landmarks × 4 values: x, y, z, visibility)
+* Output: A pose label (e.g., "Tree Pose", "Warrior", etc.)
+
+You can train this using custom datasets captured with BlazePose and labeled accordingly.
+
 ---
 
-If you **share the actual code**, I’ll customize the README to include:
-- Specific pose names
-- Model file paths
-- Demo screenshots
-- Dataset references
-
-Would you like that?
-```
+Let me know if you’d like to include **model training instructions**, a **Dockerfile**, or deployment tips.
