@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yoga Pose Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .video-container {
+            margin: 20px 0;
+            position: relative;
+        }
+        .video-feed {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .pose-stats {
+            text-align: left;
+            margin-top: 20px;
+            background-color: #ecf0f1;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 10px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        .instructions {
+            text-align: left;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #3498db;
+        }
+        .instructions ul {
+            margin-left: 20px;
+            padding-left: 0;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Yoga Pose Detection</h1>
+
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <ul>
+                <li>Click "Start Detection" to begin the yoga pose analysis.</li>
+                <li>Position yourself in front of the camera so your full body is visible.</li>
+                <li>Try different yoga poses and see if the system can recognize them.</li>
+                <li>Click "Stop Detection" when you're finished.</li>
+            </ul>
+        </div>
+
+        <div class="video-container">
+            <img src="{{ url_for('video_feed') }}" class="video-feed" alt="Yoga Pose Detection Feed">
+        </div>
+
+        <div class="controls">
+            <button id="startBtn" onclick="startDetection()">Start Detection</button>
+            <button id="stopBtn" onclick="stopDetection()" disabled>Stop Detection</button>
+        </div>
+
+        <div class="status" id="statusText">
+            Detection not started. Click "Start Detection" to begin.
+        </div>
+
+        <div class="pose-stats">
+            <h3>Detected Poses</h3>
+            <ul id="poseDataList">
+                <li>No data yet</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function startDetection() {
+            fetch('/start', { method: 'POST' })
+                .then(response => {
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('statusText').innerText = "Detection active. Strike a yoga pose!";
+                    pollPoseData();
+                })
+                .catch(error => {
+                    console.error('Error starting detection:', error);
+                    document.getElementById('statusText').innerText = "Error starting detection. Please try again.";
+                });
+        }
+
+        function stopDetection() {
+            fetch('/stop', { method: 'POST' })
+                .then(response => {
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                    document.getElementById('statusText').innerText = "Detection stopped. Click 'Start Detection' to begin again.";
+                })
+                .catch(error => {
+                    console.error('Error stopping detection:', error);
+                });
+        }
+
+        function pollPoseData() {
+            if (document.getElementById('stopBtn').disabled) return;
+
+            fetch('/pose_data')
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById('poseDataList');
+                    list.innerHTML = '';
+                    if (data.length === 0) {
+                        list.innerHTML = '<li>No pose data detected</li>';
+                    } else {
+                        data.forEach(person => {
+                            const item = document.createElement('li');
+                            item.textContent = `${person.id}: ${person.pose}`;
+                            list.appendChild(item);
+                        });
+                    }
+                })
+                .catch(error => console.error('Pose fetch error:', error))
+                .finally(() => setTimeout(pollPoseData, 1000));
+        }
+    </script>
+</body>
+</html>
